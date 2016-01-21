@@ -1,0 +1,28 @@
+{
+  "name": "template",
+  "authors": [
+    "Sébastien Robaszkiewicz",
+    "Norbert Schnell",
+    "Benjamin Matuszewski"
+  ],
+  "description": "This template allows you to bootstrap a Soundworks scenario. The example scenario of this template allows the connected clients to play a sound.",
+  "version": "0.4.0",
+  "scripts": {
+    "bundle": "node ./bin/scripts --bundle",
+    "start": "node dist/server/index.js",
+    "watch": "node ./bin/scripts --watch"
+  },
+  "dependencies": {
+    "babel-runtime": "^5.8.34",
+    "debug": "^2.1.2",
+    "soundworks": "collective-soundworks/soundworks.git#develop"
+  },
+  "devDependencies": {
+    "babel": "^5.8.34",
+    "browserify": "^12.0.1",
+    "fs-extra": "^0.26.2",
+    "node-sass": "^3.4.1",
+    "node-watch": "^0.3.4",
+    "watchify": "^3.6.0"
+  }
+}

@@ -1,0 +1,27 @@
+'use strict';
+
+var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
+
+var _soundworksClient = require('soundworks/client');
+
+var _soundworksClient2 = _interopRequireDefault(_soundworksClient);
+
+var _MapPerformance = require('./MapPerformance');
+
+var _MapPerformance2 = _interopRequireDefault(_MapPerformance);
+
+var client = _soundworksClient2['default'].client;
+
+function init() {
+  client.init('map');
+
+  var sync = new _soundworksClient2['default'].ClientSync();
+  var performance = new _MapPerformance2['default'](sync);
+
+  client.start(function (serial, parallel) {
+    return serial(sync, performance);
+  });
+}
+
+window.addEventListener('load', init);
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9jbGllbnQvbWFwL2luZGV4LmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7Z0NBQXVCLG1CQUFtQjs7Ozs4QkFDZixrQkFBa0I7Ozs7QUFFN0MsSUFBTSxNQUFNLEdBQUcsOEJBQVcsTUFBTSxDQUFDOztBQUVqQyxTQUFTLElBQUksR0FBRztBQUNkLFFBQU0sQ0FBQyxJQUFJLENBQUMsS0FBSyxDQUFDLENBQUM7O0FBRW5CLE1BQU0sSUFBSSxHQUFHLElBQUksOEJBQVcsVUFBVSxFQUFFLENBQUM7QUFDekMsTUFBTSxXQUFXLEdBQUcsZ0NBQW1CLElBQUksQ0FBQyxDQUFDOztBQUU3QyxRQUFNLENBQUMsS0FBSyxDQUFDLFVBQUMsTUFBTSxFQUFFLFFBQVEsRUFBSztBQUNqQyxXQUFPLE1BQU0sQ0FBQyxJQUFJLEVBQUUsV0FBVyxDQUFDLENBQUM7R0FDbEMsQ0FBQyxDQUFDO0NBQ0o7O0FBRUQsTUFBTSxDQUFDLGdCQUFnQixDQUFDLE1BQU0sRUFBRSxJQUFJLENBQUMsQ0FBQyIsImZpbGUiOiJzcmMvY2xpZW50L21hcC9pbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBzb3VuZHdvcmtzIGZyb20gJ3NvdW5kd29ya3MvY2xpZW50JztcbmltcG9ydCBNYXBQZXJmb3JtYW5jZSBmcm9tICcuL01hcFBlcmZvcm1hbmNlJztcblxuY29uc3QgY2xpZW50ID0gc291bmR3b3Jrcy5jbGllbnQ7XG5cbmZ1bmN0aW9uIGluaXQoKSB7XG4gIGNsaWVudC5pbml0KCdtYXAnKTtcblxuICBjb25zdCBzeW5jID0gbmV3IHNvdW5kd29ya3MuQ2xpZW50U3luYygpO1xuICBjb25zdCBwZXJmb3JtYW5jZSA9IG5ldyBNYXBQZXJmb3JtYW5jZShzeW5jKTtcblxuICBjbGllbnQuc3RhcnQoKHNlcmlhbCwgcGFyYWxsZWwpID0+IHtcbiAgICByZXR1cm4gc2VyaWFsKHN5bmMsIHBlcmZvcm1hbmNlKTtcbiAgfSk7XG59XG5cbndpbmRvdy5hZGRFdmVudExpc3RlbmVyKCdsb2FkJywgaW5pdCk7XG5cblxuIl19
