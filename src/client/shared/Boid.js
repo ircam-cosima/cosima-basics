@@ -39,14 +39,14 @@ export default class Boid {
     }
   }
 
-  render(ctx, ratio) {
+  render(ctx, ratio, radius = 2) {
     const x = this._position.x * ratio;
     const y = this._position.y * ratio;
 
     ctx.save();
     ctx.beginPath();
     ctx.fillStyle = this.color;
-    ctx.arc(x, y, 2, 0, Math.PI * 2, false);
+    ctx.arc(x, y, radius, 0, Math.PI * 2, false);
     ctx.fill();
     ctx.closePath();
     ctx.restore();

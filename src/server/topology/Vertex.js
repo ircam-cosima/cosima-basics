@@ -1,6 +1,6 @@
-export default class Vertex {
+class Vertex {
   constructor(client, x, y) {
-    this.id = client.uid;
+    this.id = client.index;
     this.client = client;
     this.x = x;
     this.y = y;
@@ -108,3 +108,5 @@ export default class Vertex {
     return data;
   }
 }
+
+export default Vertex;

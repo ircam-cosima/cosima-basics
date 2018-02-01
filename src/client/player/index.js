@@ -1,14 +1,7 @@
-// Import Soundworks library modules (client side)
-import {
-  client,
-  ClientControl,
-  ClientLocator,
-  ClientSync,
-  Orientation,
-  Welcome,
-  Loader
-} from 'soundworks/client';
-import PlayerPerformance from './PlayerPerformance.js';
+// import client side soundworks and player experience
+import * as soundworks from 'soundworks/client';
+import PlayerExperience from './PlayerExperience';
+import serviceViews from '../shared/serviceViews';
 
 const audioConfig = {
   schwitters: {
@@ -28,41 +21,23 @@ const audioConfig = {
   }
 }
 
-const audioFiles = [];
+function bootstrap() {
+  // initialize the client with configuration received
+  // from the server through the `index.html`
+  // @see {~/src/server/index.js}
+  // @see {~/html/default.ejs}
+  const config = Object.assign({ appContainer: '#container' }, window.soundworksConfig);
+  soundworks.client.init(config.clientType, config);
 
-for (let key in audioConfig)
-  audioFiles.push(audioConfig[key].file);
-
-
-const init = () => {
-  client.init('player');
-
-  const welcome = new Welcome({
-    fullScreen: false,
-    requireMobile: false,
+  // configure views for the services
+  soundworks.client.setServiceInstanciationHook((id, instance) => {
+    if (serviceViews.has(id))
+      instance.view = serviceViews.get(id, config);
   });
 
-  const control = new ClientControl();
-  const sync = new ClientSync();
-  const loader = new Loader({ files: audioFiles });
-  const locator = new ClientLocator({
-    positionRadius: 0.3,
-    persist: true, // @todo - add a command to trigger the storage of the location
-    // random: true,
-  });
-  // const orientation = new Orientation();
-  const performance = new PlayerPerformance(audioConfig, sync, control, loader);
-
-  // Start the scenario and order the modules
-  client.start((serial, parallel) =>
-    serial(
-      parallel(welcome, loader, sync, control),
-      locator,
-      // orientation,
-      performance
-    )
-  );
+  // create client side (player) experience and start the client
+  const experience = new PlayerExperience(audioConfig);
+  soundworks.client.start();
 }
 
-// Init app when document id ready
-window.addEventListener('load', init);
+window.addEventListener('load', bootstrap);

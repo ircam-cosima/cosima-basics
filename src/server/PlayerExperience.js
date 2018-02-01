@@ -1,14 +1,17 @@
-import { ServerPerformance } from 'soundworks/server';
-import Tree from './topology/Tree';
+import * as soundworks from 'soundworks/server';
 
-export default class PlayerPerformance extends ServerPerformance {
-  constructor(options = {}) {
-    super(options);
+class PlayerExperience extends soundworks.Experience {
+  constructor(clientType, comm, tree) {
+    super(clientType);
 
-    this.tree = new Tree(options.setup);
-    this.sync = options.sync;
-    this._velocityMean = null;
-    this._velocitySpread = null;
+    this.comm = comm;
+    this.tree = tree;
+
+    this.sync = this.require('sync');
+    this.checkin = this.require('checkin');
+    this.locator = this.require('locator');
+    this.audioBufferManager = this.require('audio-buffer-manager');
+    this.sharedParams = this.require('shared-params');
   }
 
   enter(client) {
@@ -16,9 +19,7 @@ export default class PlayerPerformance extends ServerPerformance {
 
     const vertex = this.tree.addVertex(client);
     // for the map (and the rest of the world)
-    this.emit('add:player', vertex, this.tree.edges);
-
-    this._sendLocalTopology();
+    this.comm.emit('add:player', vertex, this.tree.edges);
 
     // when a client trigger a message
     this.receive(client, 'trigger', (syncTime, velocity, period, offset, markerIndex, resamplingIndex) => {
@@ -26,11 +27,11 @@ export default class PlayerPerformance extends ServerPerformance {
       this.tree.bfs(vertex, syncTime, velocity);
 
       // send detailled informations to each client
-      this.tree.vertices.forEach((vertex) => {
+      this.tree.vertices.forEach(vertex => {
         if (client === vertex.client) { return; }
 
         const data = vertex.serialize(true);
-        data.sourceId = client.uid;
+        data.sourceId = client.index;
         // 'periodic' mode
         data.period = period;
         data.offsetPeriod = offset;
@@ -46,7 +47,11 @@ export default class PlayerPerformance extends ServerPerformance {
 
       // for the rest of the world (map)
       const path = this.tree.serializeTriggerPath();
-      this.emit('trigger', path);
+      this.comm.emit('trigger', path);
+    });
+
+    this.receive(client, 'subgraph:request', () => {
+      this._sendLocalTopology();
     });
   }
 
@@ -55,14 +60,14 @@ export default class PlayerPerformance extends ServerPerformance {
     // remove vertex from tree
     this.tree.removeVertex(client);
     // share with the map
-    this.emit('remove:player', client.uid, this.tree.edges);
+    this.comm.emit('remove:player', client.index, this.tree.edges);
     // send updated informations to all clients
     this._sendLocalTopology();
   }
 
   // send local topology to all players
   _sendLocalTopology() {
-    this.tree.vertices.forEach((vertex) => {
+    this.tree.vertices.forEach(vertex => {
       const client = vertex.client;
       const data = vertex.serializeAdjacents();
 
@@ -70,3 +75,5 @@ export default class PlayerPerformance extends ServerPerformance {
     });
   }
 }
+
+export default PlayerExperience;

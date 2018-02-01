@@ -1,8 +1,8 @@
-import soundworks from 'soundworks/client';
+import * as soundworks from 'soundworks/client';
 
 const audioCtx = soundworks.audioContext;
 const audio = soundworks.audio;
-const scheduler = audio.getSimpleScheduler();
+const scheduler = audio.getScheduler();
 
 scheduler.period = 0.1;
 scheduler.lookahead = 0.2;
@@ -49,12 +49,9 @@ class SourceEngine extends audio.TimeEngine {
   }
 }
 
-export default class PeriodicSynth {
-  constructor(audioCtx, sync, loader) {
-    this.audioCtx = audioCtx;
+class PeriodicSynth {
+  constructor(sync) {
     this.sync = sync;
-    this.loader = loader;
-
     this.gain = null;
 
     const sampleRate = audioCtx.sampleRate;
@@ -105,18 +102,4 @@ export default class PeriodicSynth {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default PeriodicSynth;

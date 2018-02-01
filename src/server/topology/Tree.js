@@ -1,16 +1,15 @@
 import Vertex from './Vertex';
 import Edge from './edge';
 
-export default class Tree {
-  constructor(setup) {
-    this.setup = setup;
+class Tree {
+  constructor() {
     this.vertices = [];
     this.edges = [];
     this.edgesPool = []; // pool of all possible edges
   }
 
   addVertex(client) {
-    const { x, y } = client.coordinates;
+    const [ x, y ] = client.coordinates;
     const vertex = new Vertex(client, x, y);
 
     this.vertices.push(vertex);
@@ -150,3 +149,5 @@ export default class Tree {
     return data;
   }
 }
+
+export default Tree;

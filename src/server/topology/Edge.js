@@ -1,6 +1,6 @@
 let id = 0;
 
-export default class Edge {
+class Edge {
   constructor(tail, head, length) {
     this.id = id++;
     this.tail = tail;
@@ -20,3 +20,5 @@ export default class Edge {
     };
   }
 }
+
+export default Edge;

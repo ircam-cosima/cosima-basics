@@ -1,7 +1,7 @@
-import soundworks from 'soundworks/client';
+import * as soundworks from 'soundworks/client';
 import getColor from '../shared/getColor';
 
-export default class PlayerRenderer extends soundworks.display.Renderer {
+class PlayerRenderer extends soundworks.Canvas2dRenderer {
   constructor() {
     super(0); // update bounded to frame rate
 
@@ -113,3 +113,5 @@ export default class PlayerRenderer extends soundworks.display.Renderer {
     ctx.restore();
   }
 }
+
+export default PlayerRenderer;

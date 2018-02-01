@@ -1,4 +1,4 @@
-import soundworks from 'soundworks/client';
+import * as soundworks from 'soundworks/client';
 import getColor from '../shared/getColor';
 import ActiveVertex from '../shared/ActiveVertex';
 import Boid from '../shared/Boid';
@@ -6,12 +6,7 @@ import PlayerRenderer from './PlayerRenderer';
 import PeriodicSynth from './PeriodicSynth';
 import GranularSynth from './GranularSynth';
 
-const audioCtx = soundworks.audioContext;
 const client = soundworks.client;
-const ClientPerformance = soundworks.ClientPerformance;
-const motionInput = soundworks.motionInput;
-const Renderer = soundworks.display.Renderer;
-const CanvasView = soundworks.display.CanvasView;
 
 const template = `
   <canvas class="background"></canvas>
@@ -22,15 +17,20 @@ const template = `
   </div>
 `;
 
-
-export default class PlayerPerformance extends ClientPerformance {
-  constructor(audioConfig, sync, control, loader, options = {}) {
-    super(options);
+class PlayerExperience extends soundworks.Experience {
+  constructor(audioConfig) {
+    super();
 
     this._audioConfig = audioConfig;
-    this._sync = sync;
-    this._control = control;
-    this._loader = loader;
+
+    this._platform = this.require('platform');
+    this._checkin = this.require('checkin');
+    this._locator = this.require('locator');
+    this._sync = this.require('sync');
+    this._sharedParams = this.require('shared-params');
+    this._audioBufferManager = this.require('audio-buffer-manager', {
+      files: this._audioConfig,
+    });
 
     this._velocityMean = null;
     this._velocitySpread = null;
@@ -38,110 +38,103 @@ export default class PlayerPerformance extends ClientPerformance {
     this._currentAudioConfig = null;
 
     this._onTouchStart = this._onTouchStart.bind(this);
-
-    this.init();
-  }
-
-  init() {
-    this.template = template;
-    // this.content = {};
-    this.viewCtor = CanvasView;
-    this.events = { 'touchstart': this._onTouchStart };
-    this.view = this.createView();
   }
 
   start() {
     super.start();
 
-    // extend config with buffers
-    Object.keys(this._audioConfig).forEach((key, index) => {
-      this._audioConfig[key].buffer = this._loader.buffers[index];
-    });
+    this.view = new soundworks.CanvasView(template, {}, {
+      'touchstart': this._onTouchStart,
+    }, {});
 
-    // initialize synth and view
-    this.periodicSynth = new PeriodicSynth(audioCtx, this._sync);
-    this.granularSynth = new GranularSynth(audioCtx, this._sync);
+    this.show().then(() => {
+      // initialize synth and view
+      this.periodicSynth = new PeriodicSynth(this._sync);
+      this.granularSynth = new GranularSynth(this._sync);
 
-    const color = getColor(client.uid);
-    this.renderer = new PlayerRenderer(color);
-    this.view.addRenderer(this.renderer);
+      const color = getColor(client.index);
+      this.renderer = new PlayerRenderer(color);
+      this.view.addRenderer(this.renderer);
 
-    this.view.setPreRender(function(ctx, dt) {
-      ctx.clearRect(0, 0, ctx.width, ctx.height);
-    });
+      this.view.setPreRender((ctx, dt, width, height) => {
+        ctx.clearRect(0, 0, width, height);
+      });
 
-    // listen for controls
-    this._control.addUnitListener('velocityMean', (value) => {
-      this._velocityMean = value;
-    });
+      // listen for controls
+      this._sharedParams.addParamListener('velocityMean', (value) => {
+        this._velocityMean = value;
+      });
 
-    this._control.addUnitListener('velocitySpread', (value) => {
-      this._velocitySpread = value;
-    });
+      this._sharedParams.addParamListener('velocitySpread', (value) => {
+        this._velocitySpread = value;
+      });
 
-    // mix
-    this._control.addUnitListener('gainPeriodic', (value) => {
-      this.periodicSynth.gain = value;
-    });
+      // mix
+      this._sharedParams.addParamListener('gainPeriodic', (value) => {
+        this.periodicSynth.gain = value;
+      });
 
-    this._control.addUnitListener('gainGranular', (value) => {
-      this.granularSynth.gain = value;
-    });
+      this._sharedParams.addParamListener('gainGranular', (value) => {
+        this.granularSynth.gain = value;
+      });
 
-    // periodic params
-    this._control.addUnitListener('periodicPeriod', (value) => {
-      this._periodicSynthPeriod = value;
-    });
+      // periodic params
+      this._sharedParams.addParamListener('periodicPeriod', (value) => {
+        this._periodicSynthPeriod = value;
+      });
 
-    // granular params
-    this._control.addUnitListener('audioConfig', (value) => {
-      value = value.toLowerCase();
-      const config = this._audioConfig[value];
-      this._currentAudioConfig = config;
-      this.granularSynth.config = config;
-    });
+      // granular params
+      this._sharedParams.addParamListener('audioConfig', (value) => {
+        const config = this._audioBufferManager.data[value.toLowerCase()];
+        this._currentAudioConfig = config;
+        this.granularSynth.config = config;
+      });
 
-    this._control.addUnitListener('granularPositionVar', (value) => {
-      this.granularSynth.positionVar = value;
-    });
+      this._sharedParams.addParamListener('granularPositionVar', (value) => {
+        this.granularSynth.positionVar = value;
+      });
 
-    this._control.addUnitListener('granularPeriod', (value) => {
-      this.granularSynth.period = value;
-    });
+      this._sharedParams.addParamListener('granularPeriod', (value) => {
+        this.granularSynth.period = value;
+      });
 
-    this._control.addUnitListener('granularDuration', (value) => {
-      this.granularSynth.duration = value;
-    });
+      this._sharedParams.addParamListener('granularDuration', (value) => {
+        this.granularSynth.duration = value;
+      });
 
-    this._control.addUnitListener('granularResampling', (value) => {
-      this.granularSynth.resampling = value;
-    });
+      this._sharedParams.addParamListener('granularResampling', (value) => {
+        this.granularSynth.resampling = value;
+      });
 
-    this._control.addUnitListener('granularResamplingVar', (value) => {
-      this.granularSynth.resamplingVar = value;
-    });
+      this._sharedParams.addParamListener('granularResamplingVar', (value) => {
+        this.granularSynth.resamplingVar = value;
+      });
 
-    this._control.addUnitListener('granularSpeed', (value) => {
-      this.granularSynth.grainSpeed = value;
-    });
+      this._sharedParams.addParamListener('granularSpeed', (value) => {
+        this.granularSynth.grainSpeed = value;
+      });
 
-    // reload
-    this._control.addUnitListener('reload', () => {
-      window.location.reload(true);
-    });
+      // reload
+      this._sharedParams.addParamListener('reload', () => {
+        window.location.reload(true);
+      });
 
-    // init communications
-    this.receive('subgraph', (data) => {
-      this._renderGraph(data);
-    });
+      // init communications
+      this.receive('subgraph', (data) => {
+        this._renderGraph(data);
+      });
 
-    this.receive('trigger', (data) => {
-      this._scheduleSynth(data, false);
-      this._scheduleRendering(data, false);
+      this.receive('trigger', (data) => {
+        this._scheduleSynth(data, false);
+        this._scheduleRendering(data, false);
+      });
+
+      this.send('subgraph:request');
     });
   }
 
   _renderGraph(data) {
+    // console.log(data);
     this.data = data;
     // define ratio for visualisation
     let maxDistance = -Infinity;
@@ -232,7 +225,7 @@ export default class PlayerPerformance extends ClientPerformance {
     if (isSource) {
       const x = 0;
       const y = 0;
-      const color = getColor(client.uid);
+      const color = getColor(client.index);
       // highlight node
       const activeVertex = new ActiveVertex(x, y, color);
       this.renderer.addActiveVertex(activeVertex);
@@ -305,4 +298,4 @@ export default class PlayerPerformance extends ClientPerformance {
   }
 }
 
-
+export default PlayerExperience;
