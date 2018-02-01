@@ -1,5 +1,3 @@
-# Soundworks template
+# arg
 
-Use this template to start writing a [`soundworks`](https://github.com/collective-soundworks/soundworks) application.
-
-You can find a tutorial in the [*Soundworks* documentation](http://collective-soundworks.github.io/soundworks/).
+example application that feature the travel of graph of device using granular synthesis
