@@ -73,8 +73,8 @@ export default {
   // if one of these service is required, this entry shouldn't be removed.
   setup: {
     area: {
-      width: 10,
-      height: 10,
+      width: 2,
+      height: 1,
       // path to an image to be used in the area representation
       background: null,
     },

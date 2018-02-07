@@ -20,16 +20,20 @@ function bootstrap() {
   // create client side (player) experience and start the client
   const controller = new soundworks.ControllerExperience();
 
+  controller.setGuiOptions('argLabel', { readonly: true });
   controller.setGuiOptions('velocityMean', { type: 'slider', size: 'large' });
   controller.setGuiOptions('velocitySpread', { type: 'slider', size: 'large' });
 
+  controller.setGuiOptions('mixLabel', { readonly: true });
   controller.setGuiOptions('gainPeriodic', { type: 'slider', size: 'large' });
   controller.setGuiOptions('gainGranular', { type: 'slider', size: 'large' });
 
   // periodic controllers
+  controller.setGuiOptions('periodicLabel', { readonly: true });
   controller.setGuiOptions('periodicPeriod', { type: 'slider', size: 'large' });
 
   // granular controllers
+  controller.setGuiOptions('granularLabel', { readonly: true });
   controller.setGuiOptions('audioConfig', { type: 'buttons' });
   controller.setGuiOptions('granularPositionVar', { type: 'slider', size: 'large' });
   controller.setGuiOptions('granularPeriod', { type: 'slider', size: 'large' });

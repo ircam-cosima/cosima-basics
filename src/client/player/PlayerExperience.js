@@ -5,6 +5,8 @@ import Boid from '../shared/Boid';
 import PlayerRenderer from './PlayerRenderer';
 import PeriodicSynth from './PeriodicSynth';
 import GranularSynth from './GranularSynth';
+import WhiteNoiseSynth from './WhiteNoiseSynth';
+import Metronome from './Metronome';
 
 const client = soundworks.client;
 
@@ -25,8 +27,10 @@ class PlayerExperience extends soundworks.Experience {
 
     this._platform = this.require('platform');
     this._checkin = this.require('checkin');
-    this._locator = this.require('locator');
+    // this._locator = this.require('locator');
+    this._placer = this.require('placer');
     this._sync = this.require('sync');
+    this._syncScheduler = this.require('sync-scheduler');
     this._sharedParams = this.require('shared-params');
     this._audioBufferManager = this.require('audio-buffer-manager', {
       files: this._audioConfig,
@@ -38,6 +42,9 @@ class PlayerExperience extends soundworks.Experience {
     this._currentAudioConfig = null;
 
     this._onTouchStart = this._onTouchStart.bind(this);
+
+    this.onSoloistStart = this.onSoloistStart.bind(this);
+    this.onSoloistStop = this.onSoloistStop.bind(this);
   }
 
   start() {
@@ -45,12 +52,17 @@ class PlayerExperience extends soundworks.Experience {
 
     this.view = new soundworks.CanvasView(template, {}, {
       'touchstart': this._onTouchStart,
-    }, {});
+    }, {
+      id: 'experience',
+      className: 'player',
+    });
 
     this.show().then(() => {
-      // initialize synth and view
+      // initialize synths and view
+      this.metronome = new Metronome(this._syncScheduler);
       this.periodicSynth = new PeriodicSynth(this._sync);
       this.granularSynth = new GranularSynth(this._sync);
+      this.whiteNoiseSynth = new WhiteNoiseSynth();
 
       const color = getColor(client.index);
       this.renderer = new PlayerRenderer(color);
@@ -60,57 +72,64 @@ class PlayerExperience extends soundworks.Experience {
         ctx.clearRect(0, 0, width, height);
       });
 
+      this._sharedParams.addParamListener('toggleMetro', value => {
+        if (value)
+          this.metronome.start();
+        else
+          this.metronome.stop();
+      });
+
       // listen for controls
-      this._sharedParams.addParamListener('velocityMean', (value) => {
+      this._sharedParams.addParamListener('velocityMean', value => {
         this._velocityMean = value;
       });
 
-      this._sharedParams.addParamListener('velocitySpread', (value) => {
+      this._sharedParams.addParamListener('velocitySpread', value => {
         this._velocitySpread = value;
       });
 
       // mix
-      this._sharedParams.addParamListener('gainPeriodic', (value) => {
+      this._sharedParams.addParamListener('gainPeriodic', value => {
         this.periodicSynth.gain = value;
       });
 
-      this._sharedParams.addParamListener('gainGranular', (value) => {
+      this._sharedParams.addParamListener('gainGranular', value => {
         this.granularSynth.gain = value;
       });
 
       // periodic params
-      this._sharedParams.addParamListener('periodicPeriod', (value) => {
+      this._sharedParams.addParamListener('periodicPeriod', value => {
         this._periodicSynthPeriod = value;
       });
 
       // granular params
-      this._sharedParams.addParamListener('audioConfig', (value) => {
+      this._sharedParams.addParamListener('audioConfig', value => {
         const config = this._audioBufferManager.data[value.toLowerCase()];
         this._currentAudioConfig = config;
         this.granularSynth.config = config;
       });
 
-      this._sharedParams.addParamListener('granularPositionVar', (value) => {
+      this._sharedParams.addParamListener('granularPositionVar', value => {
         this.granularSynth.positionVar = value;
       });
 
-      this._sharedParams.addParamListener('granularPeriod', (value) => {
+      this._sharedParams.addParamListener('granularPeriod', value => {
         this.granularSynth.period = value;
       });
 
-      this._sharedParams.addParamListener('granularDuration', (value) => {
+      this._sharedParams.addParamListener('granularDuration', value => {
         this.granularSynth.duration = value;
       });
 
-      this._sharedParams.addParamListener('granularResampling', (value) => {
+      this._sharedParams.addParamListener('granularResampling', value => {
         this.granularSynth.resampling = value;
       });
 
-      this._sharedParams.addParamListener('granularResamplingVar', (value) => {
+      this._sharedParams.addParamListener('granularResamplingVar', value => {
         this.granularSynth.resamplingVar = value;
       });
 
-      this._sharedParams.addParamListener('granularSpeed', (value) => {
+      this._sharedParams.addParamListener('granularSpeed', value => {
         this.granularSynth.grainSpeed = value;
       });
 
@@ -130,6 +149,10 @@ class PlayerExperience extends soundworks.Experience {
       });
 
       this.send('subgraph:request');
+
+      // soloist comms
+      this.receive('soloist:start', this.onSoloistStart);
+      this.receive('soloist:stop', this.onSoloistStop);
     });
   }
 
@@ -295,6 +318,18 @@ class PlayerExperience extends soundworks.Experience {
         }, dt * 1000);
       }, (prevTriggerTime - now) * 1000);
     }
+  }
+
+
+  // SOUNDFIELD
+  onSoloistStart() {
+    this.whiteNoiseSynth.start();
+    this.view.$el.classList.add('active');
+  }
+
+  onSoloistStop() {
+    this.whiteNoiseSynth.stop();
+    this.view.$el.classList.remove('active');
   }
 }
 

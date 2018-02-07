@@ -3,6 +3,8 @@ import path from 'path';
 import * as soundworks from 'soundworks/server';
 import PlayerExperience from './PlayerExperience';
 import MapExperience from './MapExperience';
+import SoloistExperience from './SoloistExperience';
+
 import Tree from './topology/Tree';
 import { EventEmitter } from 'events';
 
@@ -24,6 +26,38 @@ process.env.NODE_ENV = config.env;
 if (process.env.PORT)
   config.port = process.env.PORT;
 
+
+// modify setup to force a grid of 2 * 12 device for positions
+//
+// 1  2  3  4  5  6  7  8  9  10 11 12
+// 13 14 15 16 17 18 19 20 21 22 23 24
+//
+// 1 and 13 y position are modifed to make them closer of each other
+// and have a deterministic path
+
+const setup = config.setup;
+const { width, height } = setup.area;
+const padding = 0.1;
+setup.labels = [];
+setup.coordinates = [];
+
+for (let i = 0; i < 2; i++) {
+  for (let j = 0; j < 12; j++) {
+    const index = i * 12 + j;
+    const label = index + 1;
+    const x = ((width - padding * 2) / 11) * j + padding;
+    let y = i * (height - padding * 2) + padding;
+
+    if (j === 0)
+      y = (i === 0) ? y + padding : y - padding;
+
+    setup.labels[index] = label;
+    setup.coordinates[index] = [x, y];
+  }
+}
+
+// ----------------------------------
+
 // initialize application with configuration options
 soundworks.server.init(config);
 
@@ -42,18 +76,22 @@ soundworks.server.setClientConfigDefinition((clientType, config, httpRequest) =>
 
 const sharedParams = soundworks.server.require('shared-params');
 
+sharedParams.addBoolean('toggleMetro', 'metronome', false);
+
+sharedParams.addText('argLabel', '&nbsp;', 'arg...');
+
 sharedParams.addNumber('velocityMean', 'Velocity Mean', 0.1, 30, 0.1, 2);
 sharedParams.addNumber('velocitySpread', 'Velocity Spread', 0, 5, 0.1, 0);
 // mix
-sharedParams.addText('mixLabel', 'Mix');
+sharedParams.addText('mixLabel', '&nbsp;', 'Mix');
 sharedParams.addNumber('gainPeriodic', 'Periodic Synth Gain', 0, 1, 0.001, 0.8);
 sharedParams.addNumber('gainGranular', 'Granular Synth Gain', 0, 1, 0.001, 0.8);
 // periodic synth
-sharedParams.addText('periodicLabel', 'Periodic Synth Parameters');
+sharedParams.addText('periodicLabel', '&nbsp;', 'Periodic Synth Parameters');
 sharedParams.addNumber('periodicPeriod', 'Noise Period', 0, 1, 0.001, 0.03);
 // granular synth
+sharedParams.addText('granularLabel', '&nbsp;', 'Granular Synth Parameters');
 sharedParams.addEnum('audioConfig', 'Audio File', ['Schwitters', 'Chloe', 'Sonar'], 'Schwitters');
-sharedParams.addText('granularLabel', 'Granular Synth Parameters');
 sharedParams.addNumber('granularPositionVar', 'Position Var', 0, 0.2, 0.001, 0.003);
 sharedParams.addNumber('granularPeriod', 'Period', 0.001, 0.5, 0.001, 0.05);
 sharedParams.addNumber('granularDuration', 'Duration', 0.001, 0.5, 0.001, 0.2);
@@ -69,6 +107,7 @@ const tree = new Tree();
 
 const playerExperience = new PlayerExperience('player', comm, tree);
 const mapExperience = new MapExperience('map', comm, tree);
+const soloistExperience = new SoloistExperience('soloist', comm);
 const controllerExperience = new soundworks.ControllerExperience('controller');
 
 soundworks.server.start();

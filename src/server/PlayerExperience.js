@@ -9,8 +9,10 @@ class PlayerExperience extends soundworks.Experience {
 
     this.sync = this.require('sync');
     this.checkin = this.require('checkin');
-    this.locator = this.require('locator');
+    // this.locator = this.require('locator');
+    this.placer = this.require('placer');
     this.audioBufferManager = this.require('audio-buffer-manager');
+    this.syncScheduler = this.require('sync-scheduler');
     this.sharedParams = this.require('shared-params');
   }
 
@@ -19,7 +21,8 @@ class PlayerExperience extends soundworks.Experience {
 
     const vertex = this.tree.addVertex(client);
     // for the map (and the rest of the world)
-    this.comm.emit('add:player', vertex, this.tree.edges);
+    this.comm.emit('map:add:player', vertex, this.tree.edges);
+    this.comm.emit('soloist:add:player', client);
 
     // when a client trigger a message
     this.receive(client, 'trigger', (syncTime, velocity, period, offset, markerIndex, resamplingIndex) => {
@@ -47,22 +50,22 @@ class PlayerExperience extends soundworks.Experience {
 
       // for the rest of the world (map)
       const path = this.tree.serializeTriggerPath();
-      this.comm.emit('trigger', path);
+      this.comm.emit('map:trigger', path);
     });
 
-    this.receive(client, 'subgraph:request', () => {
-      this._sendLocalTopology();
-    });
+    this.receive(client, 'subgraph:request', () => this._sendLocalTopology());
   }
 
   exit(client) {
-    super.exit(client);
     // remove vertex from tree
     this.tree.removeVertex(client);
     // share with the map
-    this.comm.emit('remove:player', client.index, this.tree.edges);
+    this.comm.emit('map:remove:player', client.index, this.tree.edges);
+    this.comm.emit('soloist:remove:player', client);
     // send updated informations to all clients
     this._sendLocalTopology();
+
+    super.exit(client);
   }
 
   // send local topology to all players

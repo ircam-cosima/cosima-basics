@@ -34,7 +34,7 @@ class MapExperience extends soundworks.Experience {
     });
 
     // listen player performance
-    this.comm.on('add:player', () => {
+    this.comm.on('map:add:player', () => {
       // edges = edges.map((edge) => edge.serialize());
       // this.send(client, 'add:player', vertex.serialize(), edges);
       const vertices = this.tree.vertices.map(vertex => vertex.serialize());
@@ -43,7 +43,7 @@ class MapExperience extends soundworks.Experience {
       this.send(client, 'update:map', vertices, edges);
     });
 
-    this.comm.on('remove:player', () => {
+    this.comm.on('map:remove:player', () => {
       // edges = edges.map((edge) => edge.serialize());
       // this.send(client, 'remove:player', id, edges);
       const vertices = this.tree.vertices.map(vertex => vertex.serialize());
@@ -52,7 +52,7 @@ class MapExperience extends soundworks.Experience {
       this.send(client, 'update:map', vertices, edges);
     });
 
-    this.comm.on('trigger', (pathInfos) => {
+    this.comm.on('map:trigger', (pathInfos) => {
       this.send(client, 'trigger', pathInfos);
     });
   }
