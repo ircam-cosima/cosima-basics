@@ -20,7 +20,7 @@ export default class ActiveVertex {
     // this.opacity = -1;
   }
 
-  render(ctx, ratio) {
+  render(ctx, ratio, radiusRatio = 1) {
     const x = this.x * ratio;
     const y = this.y * ratio;
     const radius = this.radius * ratio;
@@ -29,7 +29,7 @@ export default class ActiveVertex {
     ctx.beginPath();
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle = this.color;
-    ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+    ctx.arc(x, y, radius * radiusRatio, 0, Math.PI * 2, false);
     ctx.fill();
     ctx.closePath();
     ctx.restore();

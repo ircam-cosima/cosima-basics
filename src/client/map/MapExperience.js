@@ -78,19 +78,7 @@ class MapExperience extends soundworks.Experience {
       });
 
       this.receive('update:map', (vertices, edges) => {
-        // this.space.addPoints(vertices);
-        // this.space.setLines(edges);
         this.renderer.updateMap(vertices, edges);
-      });
-
-      this.receive('add:player', (vertex, edges) => {
-        // this.space.addPoint(vertex);
-        // this.space.setLines(edges);
-      });
-
-      this.receive('remove:player', (id, edges) => {
-        // this.space.deletePoint(id);
-        // this.space.setLines(edges);
       });
 
       this.receive('trigger', pathInfos => {

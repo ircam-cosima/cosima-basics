@@ -80,18 +80,18 @@ sharedParams.addBoolean('toggleMetro', 'metronome', false);
 
 sharedParams.addText('argLabel', '&nbsp;', 'arg...');
 
-sharedParams.addNumber('velocityMean', 'Velocity Mean', 0.1, 30, 0.1, 2);
+sharedParams.addNumber('velocityMean', 'Velocity Mean', 0.1, 30, 0.1, 0.7);
 sharedParams.addNumber('velocitySpread', 'Velocity Spread', 0, 5, 0.1, 0);
 // mix
 sharedParams.addText('mixLabel', '&nbsp;', 'Mix');
-sharedParams.addNumber('gainPeriodic', 'Periodic Synth Gain', 0, 1, 0.001, 0.8);
-sharedParams.addNumber('gainGranular', 'Granular Synth Gain', 0, 1, 0.001, 0.8);
+sharedParams.addNumber('gainPeriodic', 'Periodic Synth Gain', 0, 1, 0.001, 0);
+sharedParams.addNumber('gainGranular', 'Granular Synth Gain', 0, 1, 0.001, 0.9);
 // periodic synth
 sharedParams.addText('periodicLabel', '&nbsp;', 'Periodic Synth Parameters');
-sharedParams.addNumber('periodicPeriod', 'Noise Period', 0, 1, 0.001, 0.03);
+sharedParams.addNumber('periodicPeriod', 'Noise Period', 0, 1, 0.001, 0.05);
 // granular synth
 sharedParams.addText('granularLabel', '&nbsp;', 'Granular Synth Parameters');
-sharedParams.addEnum('audioConfig', 'Audio File', ['Schwitters', 'Chloe', 'Sonar'], 'Schwitters');
+sharedParams.addEnum('audioConfig', 'Audio File', ['Schwitters', 'Chloe', 'Sonar'], 'Chloe');
 sharedParams.addNumber('granularPositionVar', 'Position Var', 0, 0.2, 0.001, 0.003);
 sharedParams.addNumber('granularPeriod', 'Period', 0.001, 0.5, 0.001, 0.05);
 sharedParams.addNumber('granularDuration', 'Duration', 0.001, 0.5, 0.001, 0.2);
@@ -112,13 +112,3 @@ const controllerExperience = new soundworks.ControllerExperience('controller');
 
 soundworks.server.start();
 
-
-// const setup = soundworks.server.config.playerSetup;
-// const sync = new soundworks.ServerSync();
-// const locator = new soundworks.ServerLocator({ setup });
-// const playerPerformance = new PlayerPerformance({ setup, sync });
-// const mapPerformance = new MapPerformance({ setup, playerPerformance });
-
-// soundworks.server.map('player', sync, control, locator, playerPerformance);
-// soundworks.server.map('map', sync, mapPerformance);
-// soundworks.server.map('conductor', control);

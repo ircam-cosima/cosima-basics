@@ -140,7 +140,7 @@ class MapRenderer extends soundworks.Canvas2dRenderer {
     });
 
     this.activeVertices.forEach((vertex) => {
-      vertex.render(ctx, this.ratio);
+      vertex.render(ctx, this.ratio, 0.2);
     });
   }
 }
