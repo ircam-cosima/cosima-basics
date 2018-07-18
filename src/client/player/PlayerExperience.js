@@ -27,8 +27,8 @@ class PlayerExperience extends soundworks.Experience {
 
     this._platform = this.require('platform');
     this._checkin = this.require('checkin');
-    // this._locator = this.require('locator');
-    this._placer = this.require('placer');
+    this._locator = this.require('locator');
+    // this._placer = this.require('placer');
     this._sync = this.require('sync');
     this._syncScheduler = this.require('sync-scheduler');
     this._sharedParams = this.require('shared-params');

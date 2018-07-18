@@ -207,7 +207,6 @@ export default class SoloistExperience extends Experience {
    *  listened `DOMElement`.
    */
   onTouchMove(id, x, y) {
-    console.log('touchmove', x, y);
     const area = this.area;
     x = x * area.width;
     y = y * area.height;

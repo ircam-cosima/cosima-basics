@@ -9,8 +9,8 @@ class PlayerExperience extends soundworks.Experience {
 
     this.sync = this.require('sync');
     this.checkin = this.require('checkin');
-    // this.locator = this.require('locator');
-    this.placer = this.require('placer');
+    this.locator = this.require('locator');
+    // this.placer = this.require('placer');
     this.audioBufferManager = this.require('audio-buffer-manager');
     this.syncScheduler = this.require('sync-scheduler');
     this.sharedParams = this.require('shared-params');
@@ -54,6 +54,8 @@ class PlayerExperience extends soundworks.Experience {
     });
 
     this.receive(client, 'subgraph:request', () => this._sendLocalTopology());
+
+    this.sharedParams.update('numPlayers', this.clients.length);
   }
 
   exit(client) {
@@ -66,6 +68,8 @@ class PlayerExperience extends soundworks.Experience {
     this._sendLocalTopology();
 
     super.exit(client);
+
+    this.sharedParams.update('numPlayers', this.clients.length);
   }
 
   // send local topology to all players

@@ -4,6 +4,7 @@ import * as soundworks from 'soundworks/server';
 import PlayerExperience from './PlayerExperience';
 import MapExperience from './MapExperience';
 import SoloistExperience from './SoloistExperience';
+import ControllerExperience from './ControllerExperience';
 
 import Tree from './topology/Tree';
 import { EventEmitter } from 'events';
@@ -76,6 +77,8 @@ soundworks.server.setClientConfigDefinition((clientType, config, httpRequest) =>
 
 const sharedParams = soundworks.server.require('shared-params');
 
+sharedParams.addText('numPlayers', '# players', '0');
+
 sharedParams.addBoolean('toggleMetro', 'metronome', false);
 
 sharedParams.addText('argLabel', '&nbsp;', 'arg...');
@@ -108,7 +111,7 @@ const tree = new Tree();
 const playerExperience = new PlayerExperience('player', comm, tree);
 const mapExperience = new MapExperience('map', comm, tree);
 const soloistExperience = new SoloistExperience('soloist', comm);
-const controllerExperience = new soundworks.ControllerExperience('controller');
+const controller = new ControllerExperience('controller');
 
 soundworks.server.start();
 
